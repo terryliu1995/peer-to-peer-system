@@ -34,12 +34,10 @@ class CentralizedServer(object):
         print 'Server just accept a client, adress is ', address
         while True:
             data = connection.recv(1024)
-            '''
-            format of the data
-            method <sp> RFC number <sp> version <cr> <lf>
-            header field name <sp> value <cr> <lf>
-            header field
-            '''
+            #show client requests
+            print '\nrequest:'
+            print data,
+            print 'from', address
             #find tht method
             data = data.split('\n')
             request_method = data[0].split(' ')[0]
@@ -55,8 +53,8 @@ class CentralizedServer(object):
                     if self.client_quit(address):
                         break
                 elif request_method == 'QUERY':
-                    data = pickle.dumps(self.active_peer)
-                    connection.sendall(data)
+                    peer_info = pickle.dumps(self.active_peer)
+                    connection.sendall(peer_info)
                 elif request_method == 'ADD':
                     self.add_rfc(data, address, connection)
                 elif request_method == 'LOOKUP':
@@ -78,7 +76,7 @@ class CentralizedServer(object):
             self.rfcs[_rfc].remove(rfc_index)
             if not self.rfcs[_rfc]:
                 # list of this rfc is empty
-                self.rfc.pop(_rfc)
+                self.rfcs.pop(_rfc)
         # return True  to close the socket
         return True
 
