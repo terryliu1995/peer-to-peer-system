@@ -4,12 +4,12 @@ import pickle
 
 class CentralizedServer(object):
     #initialize the CI server infomation
-    def __init__(self, servername):
+    def __init__(self):
         #infomation: host_name
         # well know prot number
         # list of active clients
         # list of rfcs
-        self.H_NAME = servername
+        self.HOST_NAME = ''
         self.PORT_NUM = 7734
         #this is a hashmap, key is address, value is a pair of{upload port, rfc dictionary}
         self.active_peer = {}
@@ -18,16 +18,15 @@ class CentralizedServer(object):
     
     def main(self):
         #initialize socket
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.bind(self.H_NAME, self.PORT)
+        self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.serverSocket.bind((self.HOST_NAME, self.PORT_NUM))
         #has maximum 5 connections
-        s.listen(5)
+        self.serverSocket.listen(1)
         print 'Server is listening connections'
-
-        while 1:
+        while True:
             #one connection, ont thread
-            connection, address = s.accept()
-            thread = threading.Thread(target=self.buildConnect, arg=(connection, address))
+            connection, address = self.serverSocket.accept()
+            thread = threading.Thread(target=self.buildConnect, args=(connection, address))
             thread.start()
 
     def buildConnect(self, connection, address):
@@ -51,12 +50,12 @@ class CentralizedServer(object):
             else:
                 if request_method == 'CONNECT':
                     _upload_server_port = int(data[0].split(' ')[1])
-                    self.active_peer[addr] = [_upload_server_port, {}]
+                    self.active_peer[address] = [_upload_server_port, {}]
                 elif request_method == 'QUIT':
                     if self.client_quit(address):
                         break
-                elif request_method == 'QUERY'
-                    data = pickle.dumps(self.peer_info)
+                elif request_method == 'QUERY':
+                    data = pickle.dumps(self.active_peer)
                     connection.sendall(data)
                 elif request_method == 'ADD':
                     self.add_rfc(data, address, connection)
@@ -71,7 +70,7 @@ class CentralizedServer(object):
         connection.close()
                         
                     
-    def client_quit(self, address)
+    def client_quit(self, address):
         _quit_client = self.active_peer.pop(address)
         # _quit_client = pair {upload port, {rfc:rfc_index}}
         for _rfc in _quit_client[1]:
@@ -92,32 +91,31 @@ class CentralizedServer(object):
         #update active_peer
         self.active_peer[address][1][_rfc_num] = _new_rfc
         #response
-        data = 'P2P-CI/1.0 200 OK\n' + 'RFC %s %s %s %s\n' % (_num, _title, _host, _upload_port)
+        data = 'P2P-CI/1.0 200 OK\n' + 'RFC %s %s %s %s\n' % (_rfc_num, _new_rfc[0], _new_rfc[1], _new_rfc[2])
         connection.sendall(data)
     
+    #client look up some specific rfc
     def client_lookup(self, data, connection):
         _rfc_num = data[0].split(' ')[2]
         if _rfc_num in self.rfcs:
             data = 'P2P-CI/1.0 200 OK\n'
             #write data of this rfc into send buffer
             for record in self.rfcs[_rfc_num]:
-                data += 'RFC %s %s %s %s\n' % (_num, record[2], record[0], record[1])
+                data += 'RFC %s %s %s %s\n' % (_rfc_num, record[2], record[0], record[1])
         else:
             data = 'P2P-CI/1.0 404 Not Found\n'
         connection.sendall(data)
     
-    def client_lsit(self, data, connection):
+    def client_list(self, data, connection):
         if self.rfcs:
             data = 'P2P-CI/1.0 200 OK\n'
             for _rfc_num in self.rfcs:
                 for record in self.rfcs[_rfc_num]:
-                    data += 'RFC %s %s %s %s\n' % (_num, record[2], record[0], record[1])
+                    data += 'RFC %s %s %s %s\n' % (_rfc_num, record[2], record[0], record[1])
         else:
             data = 'P2P-CI/1.0 404 Not Found\n'
         connection.sendall(data)
-conn
 
 if __name__ == '__main__':
-    hotname = 'localhost'
-    server = CentralizedServer(hostname)
+    server = CentralizedServer()
     server.main()  
