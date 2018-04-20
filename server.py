@@ -33,7 +33,7 @@ class CentralizedServer(object):
     def buildConnect(self, connection, address):
         #when build a connection, print this line
         print 'Server just accept a client, adress is ', address
-        while 1:
+        while True:
             data = connection.recv(1024)
             '''
             format of the data
@@ -55,9 +55,19 @@ class CentralizedServer(object):
                 elif request_method == 'QUIT':
                     if self.client_quit(address):
                         break
+                elif request_method == 'QUERY'
+                    data = pickle.dumps(self.peer_info)
+                    connection.sendall(data)
                 elif request_method == 'ADD':
                     self.add_rfc(data, address, connection)
-                    
+                elif request_method == 'LOOKUP':
+                    #find peers who has the rfc i want
+                    self.client_lookup(data, connection)
+                elif request_method == 'LIST':
+                    self.client_list(data, connection)
+                else:
+                    connection.sendall('P2P-CI/1.0 400 Bad Request\n')
+        #when client chooses quit, connection close
         connection.close()
                         
                     
@@ -85,7 +95,27 @@ class CentralizedServer(object):
         data = 'P2P-CI/1.0 200 OK\n' + 'RFC %s %s %s %s\n' % (_num, _title, _host, _upload_port)
         connection.sendall(data)
     
-
+    def client_lookup(self, data, connection):
+        _rfc_num = data[0].split(' ')[2]
+        if _rfc_num in self.rfcs:
+            data = 'P2P-CI/1.0 200 OK\n'
+            #write data of this rfc into send buffer
+            for record in self.rfcs[_rfc_num]:
+                data += 'RFC %s %s %s %s\n' % (_num, record[2], record[0], record[1])
+        else:
+            data = 'P2P-CI/1.0 404 Not Found\n'
+        connection.sendall(data)
+    
+    def client_lsit(self, data, connection):
+        if self.rfcs:
+            data = 'P2P-CI/1.0 200 OK\n'
+            for _rfc_num in self.rfcs:
+                for record in self.rfcs[_rfc_num]:
+                    data += 'RFC %s %s %s %s\n' % (_num, record[2], record[0], record[1])
+        else:
+            data = 'P2P-CI/1.0 404 Not Found\n'
+        connection.sendall(data)
+conn
 
 if __name__ == '__main__':
     hotname = 'localhost'
