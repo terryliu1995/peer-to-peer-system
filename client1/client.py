@@ -41,7 +41,13 @@ class Client(object):
         print 'lookup: lookup a specific rfc\n'
         print 'list: list all rfcs\n'
         print 'download: download specific rfc\n'
-
+        command_dict = {'connect':self.connect_server, 
+                        'add':self.add_rfc,
+                        'query':self.query_active,
+                        'lookup':self.lookup_rfc,
+                        'list':self.list_all,
+                        'download':self.download,
+                        'quit':self.quit}
         print 'check'
         while self.client_active:
             request_method = raw_input('Enter your request: ')
@@ -94,7 +100,7 @@ class Client(object):
     
     def query_active(self):
         if self.serverSocket:
-            data = 'QUERY P2P-CI/1.0\n'
+            data = 'QUERY\n'
             self.serverSocket.sendall(data)
             recv_data = pickle.loads(self.serverSocket.recv(1024))
             print recv_data
@@ -188,8 +194,6 @@ class Client(object):
             #quit from server
             data = 'QUIT P2P-CI/1.0\n'
             self.serverSocket.sendall(data)
-            recv_data = self.serverSocket.recv(1024)
-            print recv_data
             self.serverSocket.close()
             print 'close connection with server successfully'
             print 'Exit Successfully'
