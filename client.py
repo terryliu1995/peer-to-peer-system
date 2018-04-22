@@ -51,7 +51,20 @@ class Client(object):
         print 'check'
         while self.client_active:
             request_method = raw_input('Enter your request: ')
-            command_dict.setdefault(request_method, self.invalid_request())
+            if request_method == 'connect':
+                self.connect_server()
+            elif request_method == 'quit':
+                self.quit()
+            elif request_method == 'add':
+                self.add_rfc()
+            elif request_method == 'query':
+                self.query_active()
+            elif request_method == 'lookup':
+                self.lookup_rfc()
+            elif request_method == 'list':
+                self.list_all()
+            else:
+                self.invalid_request()
 
     def connect_server(self):
         if self.serverSocket:
