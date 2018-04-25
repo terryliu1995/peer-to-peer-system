@@ -41,26 +41,36 @@ class Client(object):
         print 'lookup: lookup a specific rfc\n'
         print 'list: list all rfcs\n'
         print 'download: download specific rfc\n'
-
         print 'check'
+        #use dict to simplify
+        command_dict = {'connect':self.connect_server, 
+                        'add':self.add_rfc,
+                        'query':self.query_active,
+                        'lookup':self.lookup_rfc,
+                        'list':self.list_all,
+                        'download':self.download,
+                        'quit':self.quit}
         while self.client_active:
             request_method = raw_input('Enter your request: ')
-            if request_method == 'connect':
-                self.connect_server()
-            elif request_method == 'quit':
-                self.quit()
-            elif request_method == 'add':
-                self.add_rfc()
-            elif request_method == 'query':
-                self.query_active()
-            elif request_method == 'lookup':
-                self.lookup_rfc()
-            elif request_method == 'list':
-                self.list_all()
-            elif request_method == 'download':
-                self.download()
-            else:
-                self.invalid_request()
+            command_dict.setdefault(request_method, self.invalid_request)()
+        # while self.client_active:
+        #     request_method = raw_input('Enter your request: ')
+        #     if request_method == 'connect':
+        #         self.connect_server()
+        #     elif request_method == 'quit':
+        #         self.quit()
+        #     elif request_method == 'add':
+        #         self.add_rfc()
+        #     elif request_method == 'query':
+        #         self.query_active()
+        #     elif request_method == 'lookup':
+        #         self.lookup_rfc()
+        #     elif request_method == 'list':
+        #         self.list_all()
+        #     elif request_method == 'download':
+        #         self.download()
+        #     else:
+        #         self.invalid_request()
 
     def connect_server(self):
         if self.serverSocket:

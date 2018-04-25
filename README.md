@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# peer-to-peer-system
-=======
 # peer-to-peer-system
 ## What is this system used for?
 Internet protocol standards are defined in documents called “Requests for Comments” (RFCs). RFCs are available for download from the IETF web site (http://www.ietf.org/). Rather than using this centralized server for downloading RFCs, you will build a P2P-CI system in which peers who wish to download an RFC that they do not have in their hard drive, may download it from another active peer who does. All communication among peers or between a peer and the server will take place over TCP.  
@@ -22,4 +19,3 @@ If you just have one machine, open one terminal for one client and run following
 ```
 ## Contributor
 Zhiyu Liu @ncsu
->>>>>>> 7a9da0e40def4e724075193c08b03fb9c20e501f
