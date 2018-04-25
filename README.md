@@ -1,4 +1,4 @@
-# peer-to-peer-system
+# [peer-to-peer-system](https://github.com/terryliu1995/peer-to-peer-system)
 ## What is this system used for?
 Internet protocol standards are defined in documents called “Requests for Comments” (RFCs). RFCs are available for download from the IETF web site (http://www.ietf.org/). Rather than using this centralized server for downloading RFCs, you will build a P2P-CI system in which peers who wish to download an RFC that they do not have in their hard drive, may download it from another active peer who does. All communication among peers or between a peer and the server will take place over TCP.  
 + There is a centralized server, running on a well-known host and listening on a well-known port, which keeps information about the active peers and maintains an index of the RFCs available at each active peer.
@@ -17,5 +17,13 @@ If you just have one machine, open one terminal for one client and run following
 ```
   python client.py
 ```
+#### 3. how to put rfcs
+If you use this system in one PC, you need to make a directory for each client, and put its rfcs under its directory. For example, in my project, I create two directories, which are client1 and client2. Each directory stores the rfcs of that client.
+#### 4. operation menu
+For server, you need do nothing, everything operation is automatic.
+For client, you should enter command by using command line.
+We support 7 operations, which are connect, add, query, list, lookup, download and quit.
 ## Contributor
 Zhiyu Liu @ncsu
+## License
+Everything in this repo is MIT License unless otherwise specified.

@@ -41,7 +41,7 @@ class Client(object):
         print 'lookup: lookup a specific rfc\n'
         print 'list: list all rfcs\n'
         print 'download: download specific rfc\n'
-        print 'check'
+        #print 'check'
         #use dict to simplify
         command_dict = {'connect':self.connect_server, 
                         'add':self.add_rfc,
