@@ -15,6 +15,8 @@ class CentralizedServer(object):
         self.active_peer = {}
         #elements of rfcs are lists, each element is a list
         self.rfcs = {}
+        #initial a lock
+        self.mutex = threading.Lock()
     
     def main(self):
         #initialize socket
@@ -24,7 +26,7 @@ class CentralizedServer(object):
         self.serverSocket.listen(1)
         print 'Server is listening connections'
         while True:
-            #one connection, ont thread
+            #one connection, one thread
             connection, address = self.serverSocket.accept()
             thread = threading.Thread(target=self.buildConnect, args=(connection, address))
             thread.start()
@@ -48,7 +50,9 @@ class CentralizedServer(object):
             else:
                 if request_method == 'CONNECT':
                     _upload_server_port = int(data[0].split(' ')[1])
-                    self.active_peer[address] = [_upload_server_port, {}]
+                    if self.mutex.acquire(1):
+                        self.active_peer[address] = [_upload_server_port, {}]
+                        self.mutex.release()
                 elif request_method == 'QUIT':
                     if self.client_quit(address):
                         break
@@ -56,7 +60,9 @@ class CentralizedServer(object):
                     peer_info = pickle.dumps(self.active_peer)
                     connection.sendall(peer_info)
                 elif request_method == 'ADD':
-                    self.add_rfc(data, address, connection)
+                    if self.mutex.acquire(1):
+                        self.add_rfc(data, address, connection)
+                        self.mutex.release()
                 elif request_method == 'LOOKUP':
                     #find peers who has the rfc i want
                     self.client_lookup(data, connection)
@@ -69,16 +75,20 @@ class CentralizedServer(object):
                         
                     
     def client_quit(self, address):
-        _quit_client = self.active_peer.pop(address)
-        # _quit_client = pair {upload port, {rfc:rfc_index}}
-        for _rfc in _quit_client[1]:
-            rfc_index = _quit_client[1][_rfc]
-            self.rfcs[_rfc].remove(rfc_index)
-            if not self.rfcs[_rfc]:
-                # list of this rfc is empty
-                self.rfcs.pop(_rfc)
-        # return True  to close the socket
-        return True
+        if self.mutex.acquire():
+            _quit_client = self.active_peer.pop(address)
+            # _quit_client = pair {upload port, {rfc:rfc_index}}
+            for _rfc in _quit_client[1]:
+                rfc_index = _quit_client[1][_rfc]
+                self.rfcs[_rfc].remove(rfc_index)
+                if not self.rfcs[_rfc]:
+                    # list of this rfc is empty
+                    self.rfcs.pop(_rfc)
+            # return True  to close the socket
+            self.mutex.release()
+            return True
+        else:
+            return False
 
     #add rfc    
     def add_rfc(self, data, address, connection):
